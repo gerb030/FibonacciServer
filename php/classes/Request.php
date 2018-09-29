@@ -190,26 +190,8 @@ class Request
 
     private function initTest()
     {
-        if ($this->_properties) {
-            foreach ($this->_properties as $key=>$value) {
-                if (strpos($key, 'SPILTEST') !== false) {
-                    $this->_testProperties[$key] = $value;
-
-                    switch ($key) {
-                    case 'SPILTESTCOUNTRYCODE':
-                        if (preg_match('/[A-Z]{2}/', $value)) {
-                            $this->_locationCode = $value;
-                        }
-                        break;
-                    case 'SPILTESTLOCALECODE':
-                        $this->_localeCode = $value;
-                        break;
-                    }
-                }
-            }
-        }
     }
-
+    
     /**
      * Getter for a value from the properties array
     *
@@ -276,8 +258,6 @@ class Request
      * Get client ip address
      *
      * Order priority
-     * - HTTP_X_PAYMENTS_COUNTRYIP  - for testing by developers
-     * - HTTP_SPILTESTIPADDRESS     - for testing by developers
      * - HTTP_X_CLUSTER_CLIENT_IP   - set by loadbalancers on staging and live
      * - REMOTE_ADDR                - default fallback
      *
