@@ -8,7 +8,6 @@ require("../php/include.inc.php");
 if (!defined('ROOT_PHP')) {
     define('ROOT_PHP', __DIR__);
 }
-echo '<pre>';
 try {
     Controller_Front::run();
 } catch (Exception_Http $e) {

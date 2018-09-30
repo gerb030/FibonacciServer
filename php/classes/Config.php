@@ -76,6 +76,22 @@ class Config
         } else {
             $this->_options['db_app_password'] = 'default_db_password';
         }
+        if (defined('DB_APP_HOSTNAME')) {
+            $this->_options['db_hostname'] = DB_APP_HOSTNAME;
+        } else {
+            $this->_options['db_hostname'] = 'localhost';
+        }
+        if (defined('DB_APP_DATABASE')) {
+            $this->_options['db_database'] = DB_APP_DATABASE;
+        } else {
+            $this->_options['db_database'] = 'planningpoker';
+        }
+        if (defined('LOGGING')) {
+            $this->_options['logging'] = LOGGING;
+        } else {
+            $this->_options['logging'] = false;
+        }
+
         if (isset($_SERVER['HTTP_HOST'])) {
             if (strstr($_SERVER['HTTP_HOST'], 'poker.slumbrous.com'))    {
                 $this->_options['environment'] = 'live';
@@ -83,7 +99,6 @@ class Config
                 $this->_options['environment'] = 'dev';
             }
         }
-        print_r($this->_options);
         return $this;
     }
 

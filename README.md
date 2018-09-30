@@ -16,9 +16,9 @@ Fibonacci Server component
 This call creates a new round.
 
 #### How to call
-Create a POST call to this URL `/new/[user]/`
+Create a POST call to this URL `/new/user/[user]/`
 
-For example `/new/gerb030/`
+For example `/new/user/gerb030/`
 
 #### Parameters
 | Name       | Type    | Length |
@@ -40,9 +40,9 @@ In case the username is already taken,
 The user joins an existing round. This is done on an invitation basis, no additional authentication is required.
 
 #### How to call
-Create a POST call to this URL `/join/[session]/[user]/`
+Create a POST call to this URL `/join/session/[session]/user/[user]/`
 
-For example `/join/12345/gerb030/`
+For example `/join/session/12345/user/gerb030/`
 
 #### Parameters
 | Name       | Type    | Length |
@@ -57,9 +57,9 @@ For successful requests, a 200 OK is returned.
 If the user has joined an existing round, The user can vote for an existing round.
 
 #### How to call
-Create a POST call to this URL `/vote/[session]/[user]/[vote]`
+Create a POST call to this URL `/vote/session/[session]/user/[user]/vote/[vote]`
 
-For example `/vote/12345/gerb030/13` or `/vote/12345/gerb030/☕️`
+For example `/vote/session/12345/user/gerb030/vote/13` or `/vote/session/12345/user/gerb030/vote/☕️`
 
 #### Parameters
 | Name       | Type    | Length |
@@ -76,9 +76,9 @@ For successful requests, a 200 OK is returned.
 Check which votes are already in
 
 #### How to call
-Create a GET call to this URL `/poll/[session]/`. This call is commonly made by the web front-end.
+Create a GET call to this URL `/poll/session/[session]/`. This call is commonly made by the web front-end.
 
-For example `/poll/12345/`
+For example `/poll/session/12345/`
 
 #### Parameters
 | Name       | Type    | Length |
@@ -104,9 +104,9 @@ For successful requests, a 200 OK is returned with the following JSON response:
 If the user has joined an existing round, The user can vote for an existing round.
 
 #### How to call
-Create a POST call to this URL `/vote/[session]/[user]/[vote]`
+Create a POST call to this URL `/vote/session/[session]/user/[user]/vote/[vote]`
 
-For example `/vote/12345/gerb030/13` or `/vote/12345/gerb030/☕️`
+For example `/vote/session/12345/user/gerb030/vote/13` or `/vote/session/12345/user/gerb030/vote/☕️`
 
 #### Parameters
 | Name       | Type    | Length |

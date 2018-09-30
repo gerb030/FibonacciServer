@@ -38,12 +38,9 @@ class Logger
     private static function write($message, $title, $level, $method = null)
     {
         $config = Config::instance();
-        $options = $config->getOptions();
-        if (!$options) return;
-        if (!isset($options['logging']) || $options['logging']['enabled'] == false || self::$_level < $level) {
+        if ($config->getOption('logging') == false || self::$_level < $level) {
             return;
         }
-        $logfilename = $options->logging->logfile;
         $get = json_encode($_GET);
         $post = json_encode($_POST);
         $ip = self::getIpAddress();

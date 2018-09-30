@@ -37,14 +37,13 @@ class Controller_Front
         self::$_config = Config::instance();
         self::$_config->init();
         //Logger::setLevel(self::$_config->getOptions()->logging->level);
-
         $request = new Request($_GET, $_POST, $_SERVER, $_REQUEST);
         try {
-            $paymentUIController = new Controller_Api(
+            $apiController = new Controller_Api(
                 $request, self::$_config
             );
-            $paymentUIController->setFactory(new Model_PaymentUIResponse_Factory());
-            $paymentUIController->handleRequest();
+//            $apiController->setFactory(new Model_Factory());
+            $apiController->handleRequest();
         } catch (Exception_Http $e) {
             self::prettyPrintException($e);
         }
@@ -52,7 +51,7 @@ class Controller_Front
 
 
     private static function prettyPrintException(Exception $e)
-    {
+    {        
         echo '<h1>'.$e->getMessage().'</h1><p>'.$e->getCode().'</p>';        
     }
 
