@@ -104,9 +104,9 @@ For successful requests, a 200 OK is returned with the following JSON response:
 If the user has joined an existing round, The user can vote for an existing round.
 
 #### How to call
-Create a POST call to this URL `/vote/session/[session]/user/[user]/vote/[vote]`
+Create a POST call to this URL `/kick/session/[session]/user/[user]/`
 
-For example `/vote/session/12345/user/gerb030/vote/13` or `/vote/session/12345/user/gerb030/vote/☕️`
+For example `/kick/session/12345/user/gerb030/`
 
 #### Parameters
 | Name       | Type    | Length |

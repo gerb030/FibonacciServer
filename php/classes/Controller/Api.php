@@ -18,18 +18,30 @@ class Controller_Api extends Controller_Abstract
 
         try {
             $pdo = DbFactory::build();
-            $playerMapper = new Mapper_Player($pdo);
+            $userMapper = new Mapper_User($pdo);
             $pokerroundMapper = new Mapper_Pokerround($pdo);
-            $pokerroundPlayerMapper = new Mapper_PokerroundPlayer($pdo);
+            $pokerroundUserMapper = new Mapper_PokerroundUser($pdo);
 
             $request = $this->getRequest();
-
-            $user = $request->getProperty('user');
-            echo $user;
-
             $languageCode = $request->getProperty('languageCode');
 
-//            $json = json_encode(array('packages' => $packages, 'promotions' => $promotionsJson));
+            $response = array();
+            switch($request->getProperty('method')) {
+                case 'new':
+                    break;
+                case 'join':
+                    $session = $request->getProperty('session');
+                    $pokerround = $pokerroundMapper->find(array('session' => $session));
+                    break;
+                case 'vote':
+                    break;
+                case 'poll':
+                    break;
+                case 'kick':
+
+                    break;
+            }
+            $json = json_encode($response);
 
             print $json;
         } catch (Exception $e) {

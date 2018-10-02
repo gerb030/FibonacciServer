@@ -8,3 +8,6 @@ services:
      - ./html:/var/www/html
      - ./php:/var/www/php
      - ./nginx-dev:/etc/nginx/sites-enabled/
+networks:
+    dockernet:
+        external: true
