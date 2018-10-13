@@ -13,17 +13,17 @@ try {
 } catch (Exception_Http $e) {
     header('HTTP/1.1 500 Internal Server Error', true, 500);
     Logger::critical('Http Exception: ' . $e->getMessage());
-    echo 'Something went wrong :-(';
+    echo 'Something went wrong :-( '.$e->getMessage();
 } catch (Exception_Internal $e) {
     header('HTTP/1.1 500 Internal Server Error', true, 500);
     Logger::critical('Internal Exception: ' . $e->getMessage());
-    echo 'Something went wrong :-(';
+    echo 'Something went wrong :-('.$e->getMessage();
 } catch(PDOException $e) {
     header('HTTP/1.1 500 Internal Server Error', true, 500);
     Logger::critical('PDOException: "'.$e->getMessage() . '" on ' . $e->getFile() . ':' . $e->getLine());
-    echo 'Something went wrong :-(';
+    echo 'Something went wrong :-('.$e->getMessage();
 } catch (Exception $e) {
     header('HTTP/1.1 500 Internal Server Error', true, 500);
     Logger::critical('Exception: ' . $e->getMessage());
-    echo 'Something went wrong :-(';
+    echo 'Something went wrong :-( '.$e->getMessage();
 }

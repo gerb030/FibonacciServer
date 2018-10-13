@@ -74,10 +74,10 @@ class Mapper_Pokerround extends Mapper_Abstract
     */
     public function populate(Domain_Abstract $obj, array $data)
     {
-            $obj->setId($data['id']);
-            $obj->setSession($data['session']);
-            $obj->setOwnerusername($data['ownerusername']);
-            $obj->setStarttime($data['starttime']);
+        $obj->setId($data['id']);
+        $obj->setSession($data['session']);
+        $obj->setOwnerusername($data['ownerusername']);
+        $obj->setStarttime($data['starttime']);
         return $obj;
     }
 
@@ -126,10 +126,9 @@ class Mapper_Pokerround extends Mapper_Abstract
         $values = array();
         $values[':session'] = $obj->getSession();
         $values[':ownerusername'] = $obj->getOwnerusername();
-        $values[':starttime'] = $obj->getStarttime();
 
         $stmt = $this->_db->prepare(
-            "INSERT INTO pokerround (`session`, ownerusername, starttime) VALUES (:session, :ownerusername, NOW())"
+            "INSERT INTO pokerround (`session`, `ownerusername`, starttime) VALUES (:session, :ownerusername, NOW())"
         );
         $result = $stmt->execute($values);
         if ($result) {
