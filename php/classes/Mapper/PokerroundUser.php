@@ -33,13 +33,13 @@ class Mapper_PokerroundUser extends Mapper_Abstract
     {
         $values = array();
         if (isset($params['username'])) {
-            $select = $this->_db->prepare('select id, pokerround_id, user_id, voted, user.username from pokerround_user INNER JOIN user ON user.id = pokerround_user.user_id WHERE user.username = :username');
+            $select = $this->_db->prepare('select pokerround_user.id, pokerround_id, pokerround_user.user_id, voted, user.username from pokerround_user INNER JOIN user ON user.id = pokerround_user.user_id WHERE user.username = :username');
             $values[':username'] = $params['username'];
         } else if (isset($params['pokerround_id'])) {
-            $select = $this->_db->prepare('select id, pokerround_id, user_id, voted, user.username from pokerround_user INNER JOIN user ON user.id = pokerround_user.user_id WHERE pokerround_user.pokerround_id = :pokerround_id');
+            $select = $this->_db->prepare('select pokerround_user.id, pokerround_id, pokerround_user.user_id, voted, user.username from pokerround_user INNER JOIN user ON user.id = pokerround_user.user_id WHERE pokerround_user.pokerround_id = :pokerround_id');
             $values[':pokerround_id'] = $params['pokerround_id'];
         } else if (isset($params['id'])) {
-            $select = $this->_db->prepare('select id, pokerround_id, user_id, voted, user.username from pokerround_user INNER JOIN user ON user.id = pokerround_user.user_id WHERE pokerround_user.id = :id');
+            $select = $this->_db->prepare('select pokerround_user.id, pokerround_id, pokerround_user.user_id, voted, user.username from pokerround_user INNER JOIN user ON user.id = pokerround_user.user_id WHERE pokerround_user.id = :id');
             $values[':id'] = $params['id'];
         } else {
             throw new Exception_Http('Incorrect parameters given for retrieving pokerround votes: '.print_r($params, 1), 400);
@@ -48,15 +48,12 @@ class Mapper_PokerroundUser extends Mapper_Abstract
         $results = array();
         while ($row = $select->fetch(PDO::FETCH_ASSOC)) {
             $data  = array();
-                $data['id'] = $row['id'];
-                $data['pokerround_id'] = $row['pokerround_id'];
-                $data['user_id'] = $row['user_id'];
-                $data['username'] = $row['username'];
-                $data['voted'] = $row['voted'];
+            $data['id'] = $row['id'];
+            $data['pokerround_id'] = $row['pokerround_id'];
+            $data['user_id'] = $row['user_id'];
+            $data['username'] = $row['username'];
+            $data['voted'] = $row['voted'];
             $results[] = $this->create($data);
-        }
-        if (count($results) == 1) {
-            return current($results);
         }
         return $results;
     }
@@ -73,11 +70,11 @@ class Mapper_PokerroundUser extends Mapper_Abstract
     */
     public function populate(Domain_Abstract $obj, array $data)
     {
-            $obj->setId($data['id']);
-            $obj->setPokerrroundId($data['pokerround_id']);
-            $obj->setUsername($data['user_id']);
-            $obj->setVoted($data['voted']);
-            $obj->setUsername($data['username']);
+        $obj->setId($data['id']);
+        $obj->setPokerroundId($data['pokerround_id']);
+        $obj->setUserId($data['user_id']);
+        $obj->setVoted($data['voted']);
+        $obj->setUsername($data['username']);
         return $obj;
     }
 
@@ -124,8 +121,8 @@ class Mapper_PokerroundUser extends Mapper_Abstract
     protected function _insert(Domain_Abstract $obj)
     {
         $values = array();
-            $values[':pokerround_id'] = $obj->getPokerroundId();
-            $values[':user_id'] = $obj->getUserId();
+        $values[':pokerround_id'] = $obj->getPokerroundId();
+        $values[':user_id'] = $obj->getUserId();
 
         $stmt = $this->_db->prepare(
             "INSERT INTO pokerround_user (pokerround_id, user_id, voted) VALUES (:pokerround_id, :user_id, NULL)"

@@ -38,18 +38,14 @@ class Controller_Front
         self::$_config->init();
         //Logger::setLevel(self::$_config->getOptions()->logging->level);
         $request = new Request($_GET, $_POST, $_SERVER, $_REQUEST);
-        try {
-            $apiController = new Controller_Api(
-                $request, self::$_config
-            );
+        $apiController = new Controller_Api(
+            $request, self::$_config
+        );
 //            $apiController->setFactory(new Model_Factory());
-            $apiController->handleRequest();
-        } catch (Exception_Http $e) {
-            self::prettyPrintException($e);
-        }
+        $apiController->handleRequest();
     }
 
-
+    // not used
     private static function prettyPrintException(Exception $e)
     {        
         echo '<h1>'.$e->getMessage().'</h1><p>'.$e->getCode().'</p>';        

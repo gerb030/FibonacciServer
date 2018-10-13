@@ -45,11 +45,16 @@ class Mapper_Pokerround extends Mapper_Abstract
         $results = array();
         while ($row = $select->fetch(PDO::FETCH_ASSOC)) {
             $data  = array();
-                $data['id'] = $row['id'];
-                $data['session'] = $row['session'];
-                $data['ownerusername'] = $row['ownerusername'];
-                $data['starttime'] = $row['starttime'];
+            $data['id'] = $row['id'];
+            $data['session'] = $row['session'];
+            $data['ownerusername'] = $row['ownerusername'];
+            $data['starttime'] = $row['starttime'];                
             $results[] = $this->create($data);
+        }
+        foreach($results as $index => $round) {
+            $pokerroundUserMapper = new Mapper_PokerroundUser($this->_db);
+            $users = $pokerroundUserMapper->find(array('pokerround_id' => $round->getId()));
+            $results[$index]->setPokerroundUsers($users);
         }
         if (count($results) == 1) {
             return current($results);

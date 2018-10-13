@@ -21,7 +21,7 @@ class DbFactory
             );
             $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (Exception $e) {
-            var_export($e);
+            throw $e;
         }
         return $db;
     }

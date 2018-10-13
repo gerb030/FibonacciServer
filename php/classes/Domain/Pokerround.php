@@ -24,6 +24,11 @@ class Domain_Pokerround extends Domain_Abstract
     */
     private $_starttime;
 
+    /**
+    * @access private
+    * @var pokerroundUsers
+    */
+    private $_pokerroundUsers;
 
 
 
@@ -103,6 +108,47 @@ class Domain_Pokerround extends Domain_Abstract
     public function getStarttime()
     {
         return $this->_starttime;
+    }
+
+    /**
+    * Setter for users
+    *
+    * @access public
+    *
+    * @return string
+    */
+    public function setPokerroundUsers(array $pokerroundUsers) {
+        $this->_pokerroundUsers = $pokerroundUsers;
+    }
+
+    /**
+    * Getter for users
+    *
+    * @access public
+    *
+    * @return string
+    */
+    public function getPokerroundUsers()
+    {
+        return $this->_pokerroundUsers;
+    }
+
+    public function addUser(Domain_PokerroundUser $pokerroundUsers) {
+        array_push($this->_pokerroundUsers, $pokerroundUsers);
+    }
+
+    public function toArray() {
+        $response = array();
+        // id doesn't need to be exposed externally
+        //$response['id'] = $this->getId();
+        $response['session'] = $this->getSession();
+        $response['ownerusername'] = $this->getOwnerusername();
+        $response['starttime'] = $this->getStarttime();
+        $response['pokerroundusers'] = array();
+        foreach ($this->_pokerroundUsers as $pokerroundUser) {
+            array_push($response['pokerroundusers'], $pokerroundUser->toArray());
+        }
+        return $response;
     }
 
 }

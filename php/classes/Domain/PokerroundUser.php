@@ -24,6 +24,12 @@ class Domain_PokerroundUser extends Domain_Abstract
     */
     private $_voted;
 
+    /**
+    * @access private
+    * @var String
+    */
+    private $_userName;
+
 
     /**
     * Setter for pokerroundId
@@ -101,6 +107,23 @@ class Domain_PokerroundUser extends Domain_Abstract
     public function getVoted()
     {
         return $this->_voted;
+    }
+
+    public function setUsername($userName) {
+        $this->_userName = $userName;
+    }
+
+    public function getUsername() {
+        return $this->_userName;
+    }
+
+    public function toArray() {
+        $response = array();
+        // id doesn't need to be exposed externally
+        //$response['id'] = $this->getId();
+        $response['username'] = $this->getUsername();
+        $response['voted'] = $this->getVoted();
+        return $response;
     }
 
 }
