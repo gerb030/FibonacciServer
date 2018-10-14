@@ -24,7 +24,7 @@ class Controller_Api extends Controller_Abstract
 
             $request = $this->getRequest();
             $languageCode = $request->getProperty('languageCode');
-            
+
             // TODO: authenticate user
             $requestUser = null;
             if ($request->getProperty('user') != null) {
@@ -64,6 +64,31 @@ class Controller_Api extends Controller_Abstract
                     $response['response'] = $pokerround->toArray();
                     break;
                 case 'vote':
+                    $session = $request->getProperty('session');
+                    $pokerround = $pokerroundMapper->find(array('session' => $session));
+                    if ($pokerround == null || (gettype($pokerround) == 'array' && count($pokerround) == 0)) {
+                        throw new Exception_Http("Poker round with this session id not found", 404);
+                    }
+                    // TODO: check if values confirm to allowed values
+                    if ($request->getProperty('vote') != null) {
+                        $vote = self::cleanString($request->getProperty('vote'));
+                    }
+                    // User already joined?
+                    $found = false;
+                    $pokerroundUsers = $pokerround->getPokerroundUsers();
+                    // TODO: check if the round has closed
+                    foreach($pokerroundUsers as $pokerroundUser) {
+                        if ($pokerroundUser->getUserId() == $requestUser->getId()) {
+                            $found = true;
+                            $pokerroundUser->setVoted($vote);
+                            $pokerroundUserMapper->save($pokerroundUser);
+                        }
+                    }
+                    // here's a security issue - users can enter a valid session key and learn if a session exists
+                    if (!$found) {
+                        throw new Exception_Http("General error occurred", 500);
+                    }
+                    $response['response'] = $pokerround->toArray();
                     break;
                 case 'poll':
                     break;
