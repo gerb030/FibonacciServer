@@ -4,8 +4,6 @@
  */
 class Domain_Pokerround extends Domain_Abstract
 {
-
-
     /**
     * @access private
     * @var string
@@ -26,11 +24,15 @@ class Domain_Pokerround extends Domain_Abstract
 
     /**
     * @access private
+    * @var timestamp
+    */
+    private $_closed;
+
+    /**
+    * @access private
     * @var pokerroundUsers
     */
     private $_pokerroundUsers;
-
-
 
     /**
     * Setter for session
@@ -111,6 +113,32 @@ class Domain_Pokerround extends Domain_Abstract
     }
 
     /**
+    * Setter for closed
+    *
+    * @param string $closed
+    *
+    * @access public
+    *
+    * @return void
+    */
+    public function setClosed($closed)
+    {
+        $this->_closed = $closed;
+    }
+
+    /**
+    * Getter for closed
+    *
+    * @access public
+    *
+    * @return string
+    */
+    public function getClosed()
+    {
+        return $this->_closed;
+    }    
+
+    /**
     * Setter for users
     *
     * @access public
@@ -144,6 +172,7 @@ class Domain_Pokerround extends Domain_Abstract
         $response['session'] = $this->getSession();
         $response['ownerusername'] = $this->getOwnerusername();
         $response['starttime'] = $this->getStarttime();
+        $response['closed'] = $this->getClosed();
         $response['pokerroundusers'] = array();
         foreach ($this->_pokerroundUsers as $pokerroundUser) {
             array_push($response['pokerroundusers'], $pokerroundUser->toArray());

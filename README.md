@@ -97,11 +97,26 @@ For successful requests, a 200 OK is returned with the following JSON response:
 	]
 }
 `
+### 5. Reset round
+The owner of a user is able to start a new round by resetting the votes.
+
+#### How to call
+Create a POST call to this URL `/restart/session/[session]/`
+
+For example `/restart/session/12345/`
+
+#### Parameters
+| Name       | Type    | Length |
+|------------|---------|--------|
+| Session | Integer | 5      |
+
+#### Returns
+For successful requests, a 200 OK is returned.
 
 
 
-### 5. Kick an existing user from a round
-If the user has joined an existing round, The user can vote for an existing round.
+### 6. Kick an existing user from a round
+The owner is able to kick a joined user from a round.
 
 #### How to call
 Create a POST call to this URL `/kick/session/[session]/user/[user]/`

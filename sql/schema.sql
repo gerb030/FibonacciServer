@@ -1,19 +1,23 @@
-CREATE DATABASE planningpoker;
+-- CREATE DATABASE planningpoker;
 USE planningpoker;
 
-GRANT SELECT, UPDATE, DELETE, INSERT ON planningpoker.* to `pokerappuser` identified by 'pokerapppassword';
+-- GRANT SELECT, UPDATE, DELETE, INSERT ON planningpoker.* to `pokerappuser` identified by 'pokerapppassword';
 
+-- Drop the tables in the correct order
+DROP TABLE IF EXISTS `pokerround_user`;
+DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `pokerround`;
+
 CREATE TABLE `pokerround` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `session` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
   `ownerusername` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `starttime` timestamp NULL DEFAULT NULL,
+  `closed` boolean not null DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `session` (`session`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
@@ -23,7 +27,6 @@ CREATE TABLE `user` (
   KEY `username_key` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-DROP TABLE IF EXISTS `pokerround_user`;
 CREATE TABLE `pokerround_user` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `pokerround_id` bigint(20) unsigned NOT NULL,

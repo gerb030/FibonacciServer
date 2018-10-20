@@ -2,6 +2,10 @@
 
 class Controller_Api extends Controller_Abstract
 {
+    private $_userMapper;
+    private $_pokerroundMapper;
+    private $_pokerroundUserMapper;
+
     /**
      * @param Request $request
      * @param Config $config
@@ -18,9 +22,9 @@ class Controller_Api extends Controller_Abstract
 
         try {
             $pdo = DbFactory::build();
-            $userMapper = new Mapper_User($pdo);
-            $pokerroundMapper = new Mapper_Pokerround($pdo);
-            $pokerroundUserMapper = new Mapper_PokerroundUser($pdo);
+            $this->_userMapper = new Mapper_User($pdo);
+            $this->_pokerroundMapper = new Mapper_Pokerround($pdo);
+            $this->_pokerroundUserMapper = new Mapper_PokerroundUser($pdo);
 
             $request = $this->getRequest();
             $languageCode = $request->getProperty('languageCode');
@@ -29,7 +33,7 @@ class Controller_Api extends Controller_Abstract
             $requestUser = null;
             if ($request->getProperty('user') != null) {
                 $userId = self::cleanString($request->getProperty('user'));
-                $requestUser = $userMapper->find(array('username' => $userId));
+                $requestUser = $this->_userMapper->find(array('username' => $userId));
                 if ($requestUser == null) {
                     throw new Exception("User not found");
                 }
@@ -40,19 +44,15 @@ class Controller_Api extends Controller_Abstract
                 case 'new':
                     $pokerround = new Domain_Pokerround();
                     $pokerround->setOwnerusername($requestUser->getUsername());
-                    $sessionKey = $this->_createSessionKey($pokerroundMapper);
+                    $sessionKey = $this->_createSessionKey();
                     $pokerround->setSession($sessionKey);
                     $pokerround->setPokerroundUsers(array());
-                    $pokerroundMapper->save($pokerround);
-                    $pokerround = $this->_addNewPokerroundUserAndPersist($pokerround, $requestUser, $pokerroundUserMapper);
+                    $this->_pokerroundMapper->save($pokerround);
+                    $pokerround = $this->_addNewPokerroundUserAndPersist($pokerround, $requestUser);
                     $response['response'] = $pokerround->toArray();
                     break;
                 case 'join':
-                    $session = $request->getProperty('session');
-                    $pokerround = $pokerroundMapper->find(array('session' => $session));
-                    if ($pokerround == null || (gettype($pokerround) == 'array' && count($pokerround) == 0)) {
-                        throw new Exception_Http("Poker round with this session id not found", 404);
-                    }
+                    $pokerround = $this->_fetchPokerround($request->getProperty('session'));
                     // User already joined?
                     $pokerroundUsers = $pokerround->getPokerroundUsers();
                     foreach($pokerroundUsers as $pokerroundUser) {
@@ -60,37 +60,63 @@ class Controller_Api extends Controller_Abstract
                             throw new Exception_Http("You are already in the session", 409);                            
                         }
                     }
-                    $pokerround = $this->_addNewPokerroundUserAndPersist($pokerround, $requestUser, $pokerroundUserMapper);
+                    $pokerround = $this->_addNewPokerroundUserAndPersist($pokerround, $requestUser);
                     $response['response'] = $pokerround->toArray();
                     break;
                 case 'vote':
-                    $session = $request->getProperty('session');
-                    $pokerround = $pokerroundMapper->find(array('session' => $session));
-                    if ($pokerround == null || (gettype($pokerround) == 'array' && count($pokerround) == 0)) {
-                        throw new Exception_Http("Poker round with this session id not found", 404);
+                    $pokerround = $this->_fetchPokerroundForParticipant($request->getProperty('session'), $requestUser);
+                    if ($pokerround->getClosed()) {
+                        throw new Exception_Http("This round does not accept votes at this time", 500);
                     }
-                    // TODO: check if values confirm to allowed values
                     if ($request->getProperty('vote') != null) {
                         $vote = self::cleanString($request->getProperty('vote'));
                     }
+                    if (!in_array($vote, array("C", "?", "0", "1", "2", "3", "5", "8", "13", "20"), true)) {
+                        throw new Exception_Http("Not a valid vote value", 500);
+                    }
                     // User already joined?
                     $found = false;
+                    $allHaveVoted = true;
                     $pokerroundUsers = $pokerround->getPokerroundUsers();
-                    // TODO: check if the round has closed
                     foreach($pokerroundUsers as $pokerroundUser) {
                         if ($pokerroundUser->getUserId() == $requestUser->getId()) {
                             $found = true;
                             $pokerroundUser->setVoted($vote);
-                            $pokerroundUserMapper->save($pokerroundUser);
+                            $this->_pokerroundUserMapper->save($pokerroundUser);
+                        } else {
+                            if ($pokerroundUser->getVoted() == null) {
+                                $allHaveVoted = false;
+                            }
                         }
                     }
                     // here's a security issue - users can enter a valid session key and learn if a session exists
                     if (!$found) {
                         throw new Exception_Http("General error occurred", 500);
                     }
+                    if ($allHaveVoted) {
+                        $pokerround = $this->_closePokerround($pokerround);
+                    }
+                    $response['response'] = $pokerround->toArray();
+                    break;
+                case 'close':
+                    $session = $request->getProperty('session');
+                    $pokerround = $this->_fetchPokerroundForOwner($session, $requestUser);
+                    if ($pokerround->getClosed()) {
+                        throw new Exception_Http("Already closed", 500);
+                    }
+                    $pokerround = $this->_closePokerround($pokerround);
                     $response['response'] = $pokerround->toArray();
                     break;
                 case 'poll':
+                    // TODO
+                    break;
+                case 'reset':
+                    $session = $request->getProperty('session');
+                    $pokerround = $this->_pokerroundMapper->find(array('session' => $session));
+                    if ($pokerround->getOwnerusername() != $requestUser->getUsername()) {
+                        throw new Exception_Http("You are not the owner of this round", 401);
+                    }
+                    $pokerround = $this->_resetPokerround($pokerround);
                     break;
                 case 'kick':
                     break;
@@ -106,12 +132,69 @@ class Controller_Api extends Controller_Abstract
     }
 
 
-    private function _createSessionKey(Mapper_Pokerround $pokerroundMapper) {
+    /**
+     * Close a pokerround - users are then unable to vote
+     */
+    private function _closePokerround(Domain_Pokerround $pokerround) {
+        $pokerround->setClosed(true);
+        $this->_pokerroundMapper->save($pokerround);
+        return $pokerround;
+    }
+
+    /**
+     * Reset a pokerround - users are able to vote again
+     */
+    private function _resetPokerround(Domain_Pokerround $pokerround) {
+        // TODO
+    }
+
+    /**
+     * Fetch the poker round for the owner user
+     */
+    private function _fetchPokerroundForOwner($session, Domain_User $requestUser) {
+        $pokerround = $this->_pokerroundMapper->find(array('session' => $session, 'owneruser' => $requestUser->getUsername()));
+        if ($pokerround == null || (gettype($pokerround) == 'array' && count($pokerround) == 0)) {
+            throw new Exception_Http("Poker round with this session id not found", 404);
+        }
+        return $pokerround;
+    }
+
+    /**
+     * Fetch the poker round for a participating user
+     */
+    private function _fetchPokerroundForParticipant($session, Domain_User $requestUser) {
+        $pokerround = $this->_fetchPokerround($session);
+        $pokerroundUsers = $pokerround->getPokerroundUsers();
+        foreach($pokerroundUsers as $pokerroundUser) {
+            if ($pokerroundUser->getUserId() == $requestUser->getId()) {
+                $found = true;
+            }
+        }
+        // here's a security issue - users can enter a valid session key and learn if a session exists
+        if (!$found) {
+            throw new Exception_Http("General error occurred", 500);
+        }
+        return $pokerround;
+    }
+
+    /**
+     * Fetch a poker round based on only the session key
+     */
+    private function _fetchPokerround($session) {
+        $pokerround = $this->_pokerroundMapper->find(array('session' => $session));
+        if ($pokerround == null || (gettype($pokerround) == 'array' && count($pokerround) == 0)) {
+            throw new Exception_Http("Poker round with this session id not found", 404);
+        }
+        return $pokerround;
+    }
+
+
+    private function _createSessionKey() {
         $newKey = $this->_generateKey();
-        $pokerround = $pokerroundMapper->find(array('session' => $newKey));
+        $pokerround = $this->_pokerroundMapper->find(array('session' => $newKey));
         while ( !(is_array($pokerround) && count($pokerround) == 0) ) {
             $newKey = $this->_generateKey();
-            $pokerround = $pokerroundMapper->find(array('session' => $newKey));
+            $pokerround = $this->_pokerroundMapper->find(array('session' => $newKey));
         }
         return $newKey;
     }
@@ -124,7 +207,7 @@ class Controller_Api extends Controller_Abstract
         return $newKey;
     }
 
-    private function _addNewPokerroundUserAndPersist(Domain_Pokerround $pokerround, Domain_User $requestUser, Mapper_PokerroundUser $pokerroundUserMapper) {
+    private function _addNewPokerroundUserAndPersist(Domain_Pokerround $pokerround, Domain_User $requestUser) {
         // Create a new Pokerround User to add to the poker round
         $pokerroundUser = new Domain_PokerroundUser();
         $pokerroundUser->setUserId($requestUser->getId());
@@ -132,13 +215,14 @@ class Controller_Api extends Controller_Abstract
         $pokerroundUser->setPokerroundId($pokerround->getId());
         $pokerroundUser->setVoted(null);
         // Save it     
-        $pokerroundUserMapper->save($pokerroundUser);
+        $this->_pokerroundUserMapper->save($pokerroundUser);
         // Add it        
         $pokerround->addUser($pokerroundUser);       
         return $pokerround;
     }
 
     function cleanString($input) {
+        if (ord($input) == 63) { return $input; }
         return preg_replace("/[^A-Za-z0-9_-]+/", "", $input);
     }
 }
