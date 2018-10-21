@@ -33,10 +33,10 @@ class Mapper_Pokerround extends Mapper_Abstract
     {
         $values = array();
         if (isset($params['session'])) {
-            $select = $this->_db->prepare('select id, session, ownerusername, starttime, closed from pokerround where session = :session');
+            $select = $this->_db->prepare('select id, session, ownerusername, starttime, lastupdated, closed from pokerround where session = :session');
             $values[':session'] = $params['session'];
         } else if (isset($params['id'])) {
-            $select = $this->_db->prepare('select id, session, ownerusername, starttime, closed from pokerround where id = :id');
+            $select = $this->_db->prepare('select id, session, ownerusername, starttime, lastupdated, closed from pokerround where id = :id');
             $values[':id'] = $params['id'];
         } else {
             throw new Exception_Http('Incorrect parameters given for retrieving pokerround: '.print_r($params, 1), 400);
@@ -49,6 +49,7 @@ class Mapper_Pokerround extends Mapper_Abstract
             $data['session'] = $row['session'];
             $data['ownerusername'] = $row['ownerusername'];
             $data['starttime'] = $row['starttime'];                
+            $data['lastupdated'] = $row['lastupdated'];                
             $data['closed'] = (bool)$row['closed'];                
             $results[] = $this->create($data);
         }
@@ -79,6 +80,7 @@ class Mapper_Pokerround extends Mapper_Abstract
         $obj->setSession($data['session']);
         $obj->setOwnerusername($data['ownerusername']);
         $obj->setStarttime($data['starttime']);
+        $obj->setLastUpdated($data['lastupdated']);
         $obj->setClosed((bool)$data['closed']);
         return $obj;
     }
@@ -130,7 +132,7 @@ class Mapper_Pokerround extends Mapper_Abstract
         $values[':ownerusername'] = $obj->getOwnerusername();
 
         $stmt = $this->_db->prepare(
-            "INSERT INTO pokerround (`session`, `ownerusername`, starttime, closed) VALUES (:session, :ownerusername, NOW(), false)"
+            "INSERT INTO pokerround (`session`, `ownerusername`, starttime, lastupdated, closed) VALUES (:session, :ownerusername, NOW(), NOW(), false)"
         );
         $result = $stmt->execute($values);
         if ($result) {
@@ -153,7 +155,7 @@ class Mapper_Pokerround extends Mapper_Abstract
         $values[':closed'] = $obj->getClosed();
 
         $stmt = $this->_db->prepare(
-            "UPDATE pokerround SET closed = :closed  WHERE id = " . $obj->getId()
+            "UPDATE pokerround SET lastupdated = NOW(), closed = :closed  WHERE id = " . $obj->getId()
         );
         $stmt->execute($values);
     }

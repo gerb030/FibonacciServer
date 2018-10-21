@@ -20,6 +20,12 @@ class Domain_Pokerround extends Domain_Abstract
     * @access private
     * @var timestamp
     */
+    private $_lastUpdated;
+
+    /**
+    * @access private
+    * @var timestamp
+    */
     private $_starttime;
 
     /**
@@ -113,6 +119,32 @@ class Domain_Pokerround extends Domain_Abstract
     }
 
     /**
+    * Setter for lastUpdated
+    *
+    * @param string $lastUpdated The timestamp we want to set to
+    *
+    * @access public
+    *
+    * @return void
+    */
+    public function setLastUpdated($lastUpdated)
+    {
+        $this->_lastUpdated = $lastUpdated;
+    }
+
+    /**
+    * Getter for lastUpdated
+    *
+    * @access public
+    *
+    * @return string
+    */
+    public function getLastUpdated()
+    {
+        return $this->_lastUpdated;
+    }
+
+    /**
     * Setter for closed
     *
     * @param string $closed
@@ -172,6 +204,7 @@ class Domain_Pokerround extends Domain_Abstract
         $response['session'] = $this->getSession();
         $response['ownerusername'] = $this->getOwnerusername();
         $response['starttime'] = $this->getStarttime();
+        $response['lastupdated'] = $this->getLastUpdated();
         $response['closed'] = $this->getClosed();
         $response['pokerroundusers'] = array();
         foreach ($this->_pokerroundUsers as $pokerroundUser) {

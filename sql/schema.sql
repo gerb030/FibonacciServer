@@ -13,6 +13,7 @@ CREATE TABLE `pokerround` (
   `session` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
   `ownerusername` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `starttime` timestamp NULL DEFAULT NULL,
+  `lastupdated` timestamp NULL DEFAULT NULL,
   `closed` boolean not null DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `session` (`session`)
@@ -21,7 +22,8 @@ CREATE TABLE `pokerround` (
 CREATE TABLE `user` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `starttime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `emailaddress` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   KEY `username_key` (`username`)

@@ -41,6 +41,9 @@ class Controller_Api extends Controller_Abstract
             
             $response = array();
             switch($request->getProperty('method')) {
+                case 'create_user':
+                    $user = new Domain_User();
+                    //$user->setUsername("")
                 case 'new':
                     $pokerround = new Domain_Pokerround();
                     $pokerround->setOwnerusername($requestUser->getUsername());
@@ -108,7 +111,8 @@ class Controller_Api extends Controller_Abstract
                     $response['response'] = $pokerround->toArray();
                     break;
                 case 'poll':
-                    // TODO
+                    $pokerround = $this->_fetchPokerroundForParticipant($request->getProperty('session'), $requestUser);
+                    $response['response'] = $pokerround->toArray();
                     break;
                 case 'reset':
                     $session = $request->getProperty('session');
@@ -119,6 +123,7 @@ class Controller_Api extends Controller_Abstract
                     $pokerround = $this->_resetPokerround($pokerround);
                     break;
                 case 'kick':
+                    // TODO
                     break;
             }
             $json = json_encode($response);
@@ -145,7 +150,9 @@ class Controller_Api extends Controller_Abstract
      * Reset a pokerround - users are able to vote again
      */
     private function _resetPokerround(Domain_Pokerround $pokerround) {
-        // TODO
+        $pokerround->setClosed(false);
+        $this->_pokerroundMapper->save($pokerround);
+        return $pokerround;
     }
 
     /**

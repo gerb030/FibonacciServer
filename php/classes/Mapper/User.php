@@ -33,10 +33,10 @@ class Mapper_User extends Mapper_Abstract
     {
         $values = array();
         if (isset($params['username'])) {
-            $select = $this->_db->prepare('select id, username, starttime from user where username = :username');
+            $select = $this->_db->prepare('select id, username, emailaddress, created from user where username = :username');
             $values[':username'] = $params['username'];
         } else if (isset($params['id'])) {
-            $select = $this->_db->prepare('select id, username, starttime from user where id = :id');
+            $select = $this->_db->prepare('select id, username, emailaddress, created  from user where id = :id');
             $values[':id'] = $params['id'];
         } else {
             throw new Exception_Http('Incorrect parameters given for retrieving user: '.print_r($params, 1), 400);
@@ -45,9 +45,10 @@ class Mapper_User extends Mapper_Abstract
         $results = array();
         while ($row = $select->fetch(PDO::FETCH_ASSOC)) {
             $data  = array();
-                $data['id'] = $row['id'];
-                $data['username'] = $row['username'];
-                $data['starttime'] = $row['starttime'];
+            $data['id'] = $row['id'];
+            $data['username'] = $row['username'];
+            $data['emailaddress'] = $row['emailaddress'];
+            $data['created'] = $row['created'];
             $results[] = $this->create($data);
         }
         if (count($results) == 1) {
@@ -68,9 +69,10 @@ class Mapper_User extends Mapper_Abstract
     */
     public function populate(Domain_Abstract $obj, array $data)
     {
-            $obj->setId($data['id']);
-            $obj->setUsername($data['username']);
-            $obj->setStarttime($data['starttime']);
+        $obj->setId($data['id']);
+        $obj->setUsername($data['username']);
+        $obj->setEmailAddress($data['emailaddress']);
+        $obj->setCreated($data['created']);
         return $obj;
     }
 
@@ -117,11 +119,11 @@ class Mapper_User extends Mapper_Abstract
     protected function _insert(Domain_Abstract $obj)
     {
         $values = array();
-            $values[':username'] = $obj->getUsername();
-            $values[':starttime'] = $obj->getStarttime();
+        $values[':username'] = $obj->getUsername();
+        $values[':emailaddress'] = $obj->getEmailAddress();
 
         $stmt = $this->_db->prepare(
-            "INSERT INTO user (username, starttime) VALUES (:username, NOW())"
+            "INSERT INTO user (username, emailaddress, created) VALUES (:username, :emailaddress, NOW())"
         );
         $result = $stmt->execute($values);
         if ($result) {
@@ -141,7 +143,8 @@ class Mapper_User extends Mapper_Abstract
     protected function _update(Domain_Abstract $obj)
     {
         $values = array();
-            $values[':username'] = $obj->getUsername();
+        $values[':username'] = $obj->getUsername();
+        $values[':emailaddress'] = $obj->getEmailAddress();
 
         $stmt = $this->_db->prepare(
             "UPDATE user SET username = :username  WHERE id = " . $obj->getId()
