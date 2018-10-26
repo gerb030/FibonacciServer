@@ -1,7 +1,4 @@
--- CREATE DATABASE planningpoker;
 USE planningpoker;
-
--- GRANT SELECT, UPDATE, DELETE, INSERT ON planningpoker.* to `pokerappuser` identified by 'pokerapppassword';
 
 -- Drop the tables in the correct order
 DROP TABLE IF EXISTS `pokerround_user`;

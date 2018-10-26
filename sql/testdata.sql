@@ -1,3 +1,4 @@
+USE planningpoker;
 
 INSERT INTO user (username, emailaddress, created) VALUES ("gerb030", "mac.gerb@gmail.com", NOW());
 INSERT INTO user (username, emailaddress, created) VALUES ("VoteUser 1", "test@test.com", NOW());
