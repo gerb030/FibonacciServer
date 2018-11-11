@@ -115,15 +115,30 @@ class Controller_Api extends Controller_Abstract
                     $response['response'] = $pokerround->toArray();
                     break;
                 case 'reset':
+                    // TODO: test
                     $session = $request->getProperty('session');
-                    $pokerround = $this->_pokerroundMapper->find(array('session' => $session));
-                    if ($pokerround->getOwnerusername() != $requestUser->getUsername()) {
-                        throw new Exception_Http("You are not the owner of this round", 401);
-                    }
+                    $pokerround = $this->_fetchPokerroundForOwner($session, $requestUser);
                     $pokerround = $this->_resetPokerround($pokerround);
+                    $response['response'] = $pokerround->toArray();
                     break;
                 case 'kick':
-                    // TODO
+                    $session = $request->getProperty('session');
+                    $userToKick = trim($request->getProperty('user_to_kick'));
+                    if ($userToKick == $requestUser->getUserName()) {
+                        throw new Exception_Http("You are not allowed to kick yourself from a round", 403);
+                    }
+                    $pokerround = $this->_fetchPokerroundForOwner($session, $requestUser);
+                    $pokerroundUsers = $pokerround->getPokerroundUsers();
+                    $updatedPokerroundUsers = array();
+                    foreach($pokerroundUsers as $pokerroundUser) {
+                        if ($pokerroundUser->getUserName() == $userToKick) {
+                            $this->_pokerroundUserMapper->delete($pokerroundUser);                                                        
+                        } else {
+                            array_push($updatedPokerroundUsers, $pokerroundUser);
+                        }
+                    }
+                    $pokerround->setPokerroundUsers($updatedPokerroundUsers);
+                    $response['response'] = $pokerround->toArray();
                     break;
             }
             $json = json_encode($response);
