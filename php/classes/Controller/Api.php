@@ -19,7 +19,6 @@ class Controller_Api extends Controller_Abstract
      public function handleRequest()
      {
         header('Content-type: application/json; charset=utf-8');
-
         try {
             $pdo = DbFactory::build();
             $this->_userMapper = new Mapper_User($pdo);
@@ -42,8 +41,19 @@ class Controller_Api extends Controller_Abstract
             $response = array();
             switch($request->getProperty('method')) {
                 case 'create_user':
+                    $userName = self::cleanString($request->getProperty('username'));
+                    $email = self::cleanString($request->getProperty('email'));
                     $user = new Domain_User();
-                    //$user->setUsername("")
+                    $user->setUsername($userName);
+                    $user->setEmailAddress($email);
+                    // check if user or email already exists
+                    $user = $this->_userMapper->find(array('user' => $userName, 'emailaddress' => $email));
+                    var_export($user);
+                    die();
+
+                    $user = $this->_userMapper->save($user);
+                    return $user;
+                                
                 case 'new':
                     $pokerround = new Domain_Pokerround();
                     $pokerround->setOwnerusername($requestUser->getUsername());
@@ -123,7 +133,7 @@ class Controller_Api extends Controller_Abstract
                     $pokerround = $this->_resetPokerround($pokerround);
                     break;
                 case 'kick':
-                    // TODO
+                    // TODO: kick
                     break;
             }
             $json = json_encode($response);
