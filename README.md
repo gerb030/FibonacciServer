@@ -116,9 +116,9 @@ For successful requests, a 200 OK is returned with the following JSON response:
 The owner of a user is able to start a new round by resetting the votes.
 
 #### How to call
-Create a POST call to this URL `/restart/session/[session]/`
+Create a POST call to this URL `/reset/session/[session]/`
 
-For example `/restart/session/12345/`
+For example `/reset/session/12345/`
 
 #### Parameters
 | Name       | Type    | Length |
@@ -134,16 +134,16 @@ For successful requests, a 200 OK is returned.
 The owner is able to kick a joined user from a round.
 
 #### How to call
-Create a POST call to this URL `/kick/session/[session]/user/[user]/`
+Create a POST call to this URL `/kick/session/[session]/user/[user]/user_to_kick/[user_to_kick]`
 
-For example `/kick/session/12345/user/gerb030/`
+For example `/kick/session/12345/user/gerb030/user_to_kick/Voter%201`
 
 #### Parameters
 | Name       | Type    | Length |
 |------------|---------|--------|
 | Session | Integer | 5      |
 | User | String | 20      |
-| Vote | String | 1      |
+| User to kick | String | 20      |
 
 #### Returns
 For successful requests, a 200 OK is returned.
