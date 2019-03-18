@@ -32,7 +32,12 @@ class Mapper_User extends Mapper_Abstract
     public function find($params = array())
     {
         $values = array();
-        if (isset($params['username'])) {
+        // find by either username OR email address
+        if (isset($params['username']) && isset($params['email'])) {
+            $select = $this->_db->prepare('select id, username, emailaddress, created from user where username = :username or emailaddress = :emailaddress');
+            $values[':username'] = $params['username'];
+            $values[':emailaddress'] = $params['emailaddress'];
+        } else if (isset($params['username'])) {
             $select = $this->_db->prepare('select id, username, emailaddress, created from user where username = :username');
             $values[':username'] = $params['username'];
         } else if (isset($params['id'])) {

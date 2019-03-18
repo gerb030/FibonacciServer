@@ -11,9 +11,9 @@ This call creates a new user.
 
 
 #### How to call
-Create a POST call to this URL `/new/user/[user]/`
+Create a POST call to this URL `/new/username/[user]/email/[email]`
 
-For example `/create_user/user/gerb030/`
+For example `/create_user/username/gerb030/email/test@test.com`
 
 #### Parameters
 | Name       | Type    | Length |
