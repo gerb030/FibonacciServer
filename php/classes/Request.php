@@ -1,4 +1,4 @@
-<?php
+ <?php
 /**
 * Class holding the request parameters passed to the service. Contains
 * mechanisms for setting and aquiring properties.
